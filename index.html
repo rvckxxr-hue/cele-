@@ -43,15 +43,15 @@
         .custom-checkbox:checked { background-color: rgb(var(--color-accent)); border-color: rgb(var(--color-accent)); }
         /* Drag & Drop Ghost Style */
         .sortable-ghost { opacity: 0.4; background: #c7d2fe; }
-        /* XP Bar */
-        #xp-bar-fill { transition: width 0.5s ease-in-out; }
         /* Modal transitions */
         .modal.hidden { display: none; }
         .modal-overlay { transition: opacity 0.3s ease; }
         .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
         /* Calendar */
-        .calendar-day.won { background-color: rgba(var(--color-accent), 0.3); }
-        .calendar-day.today { border-color: rgb(var(--color-primary)); }
+        .calendar-day { transition: all 0.2s ease; }
+        .calendar-day.won { background-color: rgba(var(--color-accent), 0.3); border-radius: 50%;}
+        .calendar-day.today { border: 2px solid rgb(var(--color-primary)); border-radius: 50%; }
+        .calendar-day.selected { background-color: rgba(var(--color-primary), 0.3); border-radius: 50%; }
         /* Stats Bar */
         .stats-bar-fill { transition: width 0.5s ease-in-out; }
     </style>
@@ -62,30 +62,29 @@
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
     </div>
 
-    <div class="max-w-md mx-auto p-4 sm:p-6">
+    <div class="max-w-md mx-auto p-4 sm:p-6 min-h-screen">
         <!-- HEADER -->
         <header class="text-center mb-6 relative">
             <h1 class="text-3xl sm:text-4xl font-bold text-primary dark:text-indigo-400">Gra Celów 3.0</h1>
-             <!-- Dark Mode Toggle & Streak -->
              <div class="absolute top-0 right-0 flex items-center gap-3">
                  <div id="streak-counter" class="flex items-center gap-1 font-bold text-amber-500 text-lg hidden">
                     <span id="streak-value">0</span>
                     <span>🔥</span>
                 </div>
-                <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"></button>
+                <button id="dark-mode-toggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden dark:block"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="block dark:hidden"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                </button>
             </div>
         </header>
 
-        <!-- CELE TYGODNIOWE -->
         <section class="mb-6">
             <h2 class="text-xl font-semibold mb-3">Główne cele tygodnia:</h2>
             <div id="weekly-goals-container" class="space-y-2"></div>
         </section>
 
-        <!-- SEPARATOR -->
         <hr class="my-6 border-slate-200 dark:border-slate-700"/>
 
-        <!-- CELE DNIA -->
         <main>
             <div class="flex justify-between items-center mb-3">
                 <h2 class="text-xl font-semibold">Cele na dziś:</h2>
@@ -94,7 +93,6 @@
             <div id="goals-container" class="space-y-3"></div>
         </main>
         
-        <!-- WIECZORNA REFLEKSJA -->
         <section id="reflection-section" class="mt-8 text-center hidden">
              <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm">
                 <h3 class="font-semibold text-lg mb-2">Wieczorna Refleksja</h3>
@@ -103,8 +101,7 @@
              </div>
         </section>
 
-        <!-- PRZYCISK DODATKÓW -->
-        <footer class="mt-8 text-center">
+        <footer class="mt-8 text-center pb-8">
              <button id="open-extras-btn" class="text-primary dark:text-indigo-400 font-semibold py-2 px-4 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                 Historia, Statystyki i Szablony
              </button>
@@ -112,17 +109,65 @@
     </div>
     
     <!-- MODALE -->
-    <!-- (Modal dla historii, statystyk, szablonów, notatek, timera Pomodoro, refleksji) -->
+    <div id="extras-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
+        <div class="modal-overlay fixed inset-0"></div>
+        <div class="modal-content bg-primary-light dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 transform scale-95 opacity-0 relative max-h-[90vh] overflow-y-auto">
+             <button id="close-extras-btn" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-3xl leading-none">&times;</button>
+            <div id="extras-tabs" class="flex border-b border-slate-300 dark:border-slate-600 mb-4">
+                <button data-tab="history" class="tab-btn flex-1 py-2 text-primary dark:text-indigo-400 border-b-2 border-primary dark:border-indigo-400">Historia</button>
+                <button data-tab="stats" class="tab-btn flex-1 py-2 text-slate-500">Statystyki</button>
+                <button data-tab="templates" class="tab-btn flex-1 py-2 text-slate-500">Szablony</button>
+            </div>
+            <div id="extras-content">
+                <!-- Historia (Kalendarz) -->
+                <div id="history-tab" class="tab-content"></div>
+                <!-- Statystyki -->
+                <div id="stats-tab" class="tab-content hidden"></div>
+                <!-- Szablony -->
+                <div id="templates-tab" class="tab-content hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pomodoro-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
+        <div class="modal-overlay fixed inset-0"></div>
+        <div class="modal-content text-center bg-primary-light dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-sm p-8 transform scale-95 opacity-0 relative">
+            <h2 class="text-2xl font-bold text-primary dark:text-indigo-400 mb-2">Tryb Skupienia</h2>
+            <p id="pomodoro-goal-text" class="text-slate-500 mb-6"></p>
+            <div id="pomodoro-timer" class="text-7xl font-bold mb-8">25:00</div>
+            <div class="flex justify-center gap-4">
+                <button id="pomodoro-start-btn" class="py-2 px-6 rounded-lg bg-primary text-white">Start</button>
+                <button id="pomodoro-close-btn" class="py-2 px-6 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700">Zamknij</button>
+            </div>
+        </div>
+    </div>
     
-    <!-- Tutaj będzie cały kod JavaScript -->
+    <div id="reflection-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
+        <div class="modal-overlay fixed inset-0"></div>
+        <div class="modal-content bg-primary-light dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 transform scale-95 opacity-0 relative">
+             <h2 class="text-2xl font-bold text-primary dark:text-indigo-400 mb-4" id="reflection-modal-question"></h2>
+             <textarea id="reflection-textarea" class="w-full h-32 p-2 border rounded-lg bg-transparent border-slate-300 dark:border-slate-600 focus:outline-none focus:border-primary"></textarea>
+             <div class="mt-4 flex justify-end gap-3">
+                <button id="cancel-reflection-btn" class="py-2 px-4 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700">Anuluj</button>
+                <button id="save-reflection-btn" class="py-2 px-4 rounded-lg bg-primary text-white">Zapisz</button>
+             </div>
+         </div>
+    </div>
+
+    <div id="template-select-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
+        <div class="modal-overlay fixed inset-0"></div>
+        <div class="modal-content bg-primary-light dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 transform scale-95 opacity-0 relative">
+             <h2 class="text-2xl font-bold text-primary dark:text-indigo-400 mb-4">Wybierz szablon</h2>
+             <div id="template-select-list" class="space-y-2"></div>
+             <button id="close-template-select-btn" class="mt-4 w-full py-2 px-4 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700">Anuluj</button>
+        </div>
+    </div>
+    
     <script type="module">
-        // Importy Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, writeBatch, collection, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, collection, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Konfiguracja i inicjalizacja Firebase
-        const appId = 'default-app-id';
         const firebaseConfig = {
             apiKey: "AIzaSyCma2crOagBMqq7gChlMteHvr3u8SdEU7k",
             authDomain: "cele-446ef.firebaseapp.com",
@@ -136,9 +181,578 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        // ... (Cała nowa, rozbudowana logika JavaScript)
-        // ... Logika dla celów tygodniowych, historii, statystyk, szablonów, timera, refleksji i wiele więcej.
-        // ... Pominięto dla zwięzłości, pełny kod znajduje się w pliku.
+        // --- Pełna logika JavaScript ---
+        const loadingSpinner = document.getElementById('loading-spinner');
+        let userId = null;
+        let userData = {};
+        let userDataUnsubscribe = null;
+        const synth = new Tone.Synth().toDestination();
+        let pomodoroTimerInterval = null;
+
+        // --- GŁÓWNA LOGIKA INICJALIZACJI ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                await initializeUserData();
+            } else {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Błąd logowania anonimowego:", error);
+                    loadingSpinner.textContent = "Błąd autoryzacji.";
+                }
+            }
+        });
+        
+        async function initializeUserData() {
+            if (!userId) return;
+            const userDocRef = doc(db, "users", userId);
+
+            if (userDataUnsubscribe) userDataUnsubscribe();
+
+            userDataUnsubscribe = onSnapshot(userDocRef, async (docSnap) => {
+                const todayStr = new Date().toISOString().split('T')[0];
+                const now = new Date();
+                const dayOfWeek = now.getDay();
+                const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                const weekStr = new Date(new Date().setDate(diff)).toISOString().split('T')[0];
+
+                if (!docSnap.exists() || !docSnap.data().version || docSnap.data().version < 3) {
+                    const oldData = docSnap.exists() ? docSnap.data() : {};
+                    const initialData = {
+                        version: 3,
+                        preferences: { darkMode: false },
+                        daily: { lastUpdated: todayStr, goals: Array(5).fill({ text: '', completed: false }) },
+                        weekly: { lastUpdated: weekStr, goals: Array(3).fill({ text: '', completed: false }) },
+                        history: oldData.wins ? oldData.wins.reduce((acc, date) => ({ ...acc, [date]: { won: true } }), {}) : {},
+                        stats: { streak: oldData.streak || 0, maxStreak: oldData.maxStreak || 0 },
+                        templates: [],
+                        reflections: {}
+                    };
+                    await setDoc(userDocRef, initialData, { merge: true });
+                    userData = initialData;
+                } else {
+                    userData = docSnap.data();
+                    let needsUpdate = false;
+                    
+                    if (userData.daily.lastUpdated !== todayStr) {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = yesterday.toISOString().split('T')[0];
+                        
+                        if (userData.daily.goals.every(g => g.completed)) {
+                             if(userData.daily.lastUpdated === yesterdayStr) {
+                                userData.stats.streak = (userData.stats.streak || 0) + 1;
+                            } else {
+                                // If win day is not yesterday, streak resets, but they get the win
+                                userData.stats.streak = 1; 
+                            }
+                        } else if (userData.daily.lastUpdated !== yesterdayStr) {
+                            userData.stats.streak = 0;
+                        }
+
+                        if(userData.stats.streak > (userData.stats.maxStreak || 0)) {
+                            userData.stats.maxStreak = userData.stats.streak;
+                        }
+
+                        // Save yesterday's result
+                        const yesterdayData = {
+                            won: userData.daily.goals.every(g => g.completed),
+                            goals: userData.daily.goals
+                        };
+                        userData.history[userData.daily.lastUpdated] = yesterdayData;
+
+
+                        userData.daily.lastUpdated = todayStr;
+                        userData.daily.goals = Array(5).fill({ text: '', completed: false });
+                        needsUpdate = true;
+                    }
+
+                    const currentWeek = new Date();
+                    const currentDayOfWeek = currentWeek.getDay();
+                    const currentDiff = currentWeek.getDate() - currentDayOfWeek + (currentDayOfWeek === 0 ? -6:1);
+                    const currentWeekStr = new Date(new Date().setDate(currentDiff)).toISOString().split('T')[0];
+                    
+                    if (userData.weekly.lastUpdated !== currentWeekStr) {
+                        userData.weekly.lastUpdated = currentWeekStr;
+                        userData.weekly.goals = Array(3).fill({ text: '', completed: false });
+                        needsUpdate = true;
+                    }
+
+                    if (needsUpdate) {
+                        await updateDoc(userDocRef, {
+                            "daily.lastUpdated": userData.daily.lastUpdated,
+                            "daily.goals": userData.daily.goals,
+                            "weekly.lastUpdated": userData.weekly.lastUpdated,
+                            "weekly.goals": userData.weekly.goals,
+                            "stats.streak": userData.stats.streak,
+                            "stats.maxStreak": userData.stats.maxStreak,
+                            "history": userData.history
+                        });
+                    }
+                }
+                
+                renderAll(userData);
+                loadingSpinner.style.display = 'none';
+            });
+        }
+
+        function renderAll(data) {
+            document.documentElement.classList.toggle('dark', data.preferences?.darkMode);
+            const streakCounter = document.getElementById('streak-counter');
+            if (data.stats?.streak > 0) {
+                document.getElementById('streak-value').textContent = data.stats.streak;
+                streakCounter.classList.remove('hidden');
+            } else {
+                streakCounter.classList.add('hidden');
+            }
+            renderWeeklyGoals(data.weekly.goals);
+            renderDailyGoals(data.daily.goals);
+            
+            const now = new Date();
+            const reflectionSection = document.getElementById('reflection-section');
+            if (now.getHours() >= 20) {
+                const todayStr = now.toISOString().split('T')[0];
+                if (!data.reflections || !data.reflections[todayStr]) {
+                     const questions = ["Co dzisiaj poszło dobrze?", "Czego nowego się dzisiaj nauczyłeś?", "Za co jesteś dziś wdzięczny?"];
+                    document.getElementById('reflection-question').textContent = questions[now.getDate() % questions.length];
+                    reflectionSection.classList.remove('hidden');
+                } else {
+                    reflectionSection.classList.add('hidden');
+                }
+            } else {
+                 reflectionSection.classList.add('hidden');
+            }
+        }
+        
+        function renderWeeklyGoals(goals) {
+            const container = document.getElementById('weekly-goals-container');
+            container.innerHTML = '';
+            goals.forEach((goal, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm';
+                div.innerHTML = `
+                    <input type="checkbox" data-index="${index}" class="custom-checkbox w-5 h-5 accent-green-400" ${goal.completed ? 'checked' : ''}>
+                    <input type="text" value="${goal.text}" data-index="${index}" placeholder="Cel tygodniowy #${index+1}" class="w-full bg-transparent text-md goal-input ${goal.completed ? 'completed' : ''}">
+                `;
+                container.appendChild(div);
+            });
+            container.querySelectorAll('input[type="checkbox"]').forEach(el => el.addEventListener('change', handleWeeklyGoalCheck));
+            container.querySelectorAll('input[type="text"]').forEach(el => el.addEventListener('blur', handleWeeklyGoalChange));
+        }
+
+        function renderDailyGoals(goals) {
+            const container = document.getElementById('goals-container');
+            container.innerHTML = '';
+             goals.forEach((goal, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm';
+                div.dataset.id = index;
+                div.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cursor-grab text-slate-400"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                    <input type="checkbox" data-index="${index}" class="custom-checkbox w-6 h-6 accent-green-400" ${goal.completed ? 'checked' : ''}>
+                    <input type="text" value="${goal.text}" data-index="${index}" placeholder="Cel dzienny #${index+1}" class="w-full bg-transparent text-lg goal-input ${goal.completed ? 'completed' : ''}">
+                    <button data-index="${index}" class="pomodoro-btn p-1 text-slate-400 hover:text-primary dark:hover:text-indigo-400 text-xl">⏱️</button>
+                `;
+                container.appendChild(div);
+            });
+            container.querySelectorAll('input[type="checkbox"]').forEach(el => el.addEventListener('change', handleDailyGoalCheck));
+            container.querySelectorAll('input[type="text"]').forEach(el => el.addEventListener('blur', handleDailyGoalChange));
+            container.querySelectorAll('.pomodoro-btn').forEach(el => el.addEventListener('click', openPomodoroModal));
+            if (window.Sortable) {
+                new Sortable(container, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    handle: '.cursor-grab',
+                    onEnd: updateGoalOrder,
+                });
+            }
+        }
+        
+        async function handleWeeklyGoalChange(e) {
+            const index = e.target.dataset.index;
+            const text = e.target.value;
+            userData.weekly.goals[index].text = text;
+            await updateDoc(doc(db, "users", userId), { "weekly.goals": userData.weekly.goals });
+        }
+        async function handleWeeklyGoalCheck(e) {
+            const index = e.target.dataset.index;
+            const checked = e.target.checked;
+            userData.weekly.goals[index].completed = checked;
+            await updateDoc(doc(db, "users", userId), { "weekly.goals": userData.weekly.goals });
+            if(checked) playSound('C5');
+        }
+        async function handleDailyGoalChange(e) {
+            const index = e.target.dataset.index;
+            const text = e.target.value;
+            userData.daily.goals[index].text = text;
+            await updateDoc(doc(db, "users", userId), { "daily.goals": userData.daily.goals });
+        }
+        async function handleDailyGoalCheck(e) {
+            const index = e.target.dataset.index;
+            const checked = e.target.checked;
+            userData.daily.goals[index].completed = checked;
+            
+            const allCompleted = userData.daily.goals.every(g => g.completed);
+            const todayStr = new Date().toISOString().split('T')[0];
+            
+            if(allCompleted && (!userData.history[todayStr] || !userData.history[todayStr].won)){
+                playSound('G5');
+            } else if (checked) {
+                playSound('C5');
+            }
+
+            userData.history[todayStr] = {
+                won: allCompleted,
+                goals: userData.daily.goals
+            };
+            
+            await updateDoc(doc(db, "users", userId), { 
+                "daily.goals": userData.daily.goals,
+                [`history.${todayStr}`]: userData.history[todayStr]
+            });
+        }
+        
+        async function updateGoalOrder(evt) {
+            const item = userData.daily.goals.splice(evt.oldIndex, 1)[0];
+            userData.daily.goals.splice(evt.newIndex, 0, item);
+            await updateDoc(doc(db, "users", userId), { "daily.goals": userData.daily.goals });
+        }
+        
+        document.getElementById('dark-mode-toggle').addEventListener('click', async () => {
+            userData.preferences.darkMode = !userData.preferences.darkMode;
+            await updateDoc(doc(db, "users", userId), { "preferences.darkMode": userData.preferences.darkMode });
+        });
+
+        // --- Modals Logic ---
+        const extrasModal = document.getElementById('extras-modal');
+        document.getElementById('open-extras-btn').addEventListener('click', () => {
+             renderExtrasContent('history');
+             openModal(extrasModal);
+        });
+        document.getElementById('close-extras-btn').addEventListener('click', () => closeModal(extrasModal));
+        extrasModal.querySelector('.modal-overlay').addEventListener('click', () => closeModal(extrasModal));
+
+        document.getElementById('extras-tabs').addEventListener('click', e => {
+            if(e.target.classList.contains('tab-btn')) {
+                const tabName = e.target.dataset.tab;
+                renderExtrasContent(tabName);
+            }
+        });
+        
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('.modal-overlay').classList.remove('opacity-0');
+                modal.querySelector('.modal-content').classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeModal(modal) {
+            modal.querySelector('.modal-overlay').classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        function renderExtrasContent(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const isSelected = btn.dataset.tab === tabName;
+                btn.classList.toggle('text-primary', isSelected);
+                btn.classList.toggle('dark:text-indigo-400', isSelected);
+                btn.classList.toggle('border-primary', isSelected);
+                btn.classList.toggle('dark:border-indigo-400', isSelected);
+                btn.classList.toggle('text-slate-500', !isSelected);
+                btn.classList.toggle('border-b-2', isSelected);
+                btn.classList.toggle('border-transparent', !isSelected);
+
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('hidden', content.id !== `${tabName}-tab`);
+            });
+            if (tabName === 'history') renderHistory();
+            if (tabName === 'stats') renderStats();
+            if (tabName === 'templates') renderTemplates();
+        }
+        
+        // History Tab
+        let selectedDate = new Date();
+        function renderHistory() {
+            const container = document.getElementById('history-tab');
+            const monthNames = ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"];
+            const header = `
+                <div class="flex justify-between items-center mb-4">
+                    <button id="prev-month" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">‹</button>
+                    <h3 class="text-lg font-semibold">${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}</h3>
+                    <button id="next-month" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">›</button>
+                </div>
+            `;
+            const daysOfWeek = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
+            const calendarGrid = `<div class="grid grid-cols-7 gap-1 text-center">${daysOfWeek.map(d => `<div class="font-bold text-sm text-slate-500">${d}</div>`).join('')}</div><div id="calendar-days" class="grid grid-cols-7 gap-1 mt-2"></div>`;
+            const detailsView = `<div id="history-details" class="mt-4 p-4 bg-white dark:bg-slate-800 rounded-lg min-h-[100px]"></div>`;
+
+            container.innerHTML = header + calendarGrid + detailsView;
+            document.getElementById('prev-month').addEventListener('click', () => { selectedDate.setMonth(selectedDate.getMonth() - 1); renderHistory(); });
+            document.getElementById('next-month').addEventListener('click', () => { selectedDate.setMonth(selectedDate.getMonth() + 1); renderHistory(); });
+            
+            renderCalendarDays();
+            renderHistoryDetails(new Date().toISOString().split('T')[0]);
+        }
+
+        function renderCalendarDays() {
+            const calendarDays = document.getElementById('calendar-days');
+            calendarDays.innerHTML = '';
+            const year = selectedDate.getFullYear();
+            const month = selectedDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            let startingDay = firstDay.getDay() -1;
+            if(startingDay < 0) startingDay = 6;
+
+            for(let i=0; i < startingDay; i++){
+                calendarDays.innerHTML += '<div></div>';
+            }
+
+            for(let day = 1; day <= lastDay.getDate(); day++){
+                const date = new Date(year, month, day);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayData = userData.history[dateStr];
+
+                let classes = 'calendar-day w-10 h-10 flex items-center justify-center rounded-full cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700';
+                if (dayData && dayData.won) classes += ' won';
+                if (dateStr === todayStr) classes += ' today';
+                
+                const dayEl = document.createElement('div');
+                dayEl.textContent = day;
+                dayEl.className = classes;
+                dayEl.dataset.date = dateStr;
+                dayEl.addEventListener('click', (e) => {
+                    document.querySelectorAll('.calendar-day.selected').forEach(el => el.classList.remove('selected'));
+                    e.currentTarget.classList.add('selected');
+                    renderHistoryDetails(e.currentTarget.dataset.date);
+                });
+                calendarDays.appendChild(dayEl);
+            }
+        }
+        
+        function renderHistoryDetails(dateStr) {
+            const detailsContainer = document.getElementById('history-details');
+            const dayData = userData.history[dateStr];
+            const date = new Date(dateStr);
+            const formattedDate = date.toLocaleDateString('pl-PL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            if(!dayData){
+                detailsContainer.innerHTML = `<p class="text-slate-500">${formattedDate}</p><p class="mt-2 text-sm text-slate-400">Brak danych dla tego dnia.</p>`;
+                return;
+            }
+
+            let goalsHtml = dayData.goals.map(g => `
+                <li class="flex items-center gap-2 ${g.completed ? '' : 'opacity-60'}">
+                    <span class="text-lg">${g.completed ? '✅' : '❌'}</span>
+                    <span class="${g.completed ? 'line-through text-slate-400' : ''}">${g.text || '<i>Pusty cel</i>'}</span>
+                </li>
+            `).join('');
+
+            detailsContainer.innerHTML = `
+                <p class="font-bold ${dayData.won ? 'text-green-500' : 'text-slate-500'}">${formattedDate} - ${dayData.won ? "Wygrana!" : "Brak wygranej"}</p>
+                <ul class="mt-2 space-y-1 text-sm">${goalsHtml}</ul>
+                ${userData.reflections && userData.reflections[dateStr] ? `<div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700"><p class="text-sm font-semibold">Refleksja:</p><p class="text-sm text-slate-500 italic">"${userData.reflections[dateStr]}"</p></div>` : ''}
+            `;
+        }
+        
+        // Stats Tab
+        function renderStats() {
+            const container = document.getElementById('stats-tab');
+            const historyValues = Object.values(userData.history || {});
+            const totalDays = historyValues.length;
+            const wonDays = historyValues.filter(d => d.won).length;
+            const winRate = totalDays > 0 ? Math.round((wonDays / totalDays) * 100) : 0;
+            
+            const dayCounts = [0,0,0,0,0,0,0]; // Mon-Sun
+            Object.keys(userData.history || {}).forEach(dateStr => {
+                if(userData.history[dateStr].won) {
+                    const day = new Date(dateStr).getDay();
+                    const index = day === 0 ? 6 : day - 1;
+                    dayCounts[index]++;
+                }
+            });
+            const maxDayCount = Math.max(...dayCounts, 1);
+            const daysOfWeek = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
+
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-semibold mb-2">Procent wygranych dni</h4>
+                        <div class="flex items-center gap-4">
+                            <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4">
+                                <div class="stats-bar-fill bg-accent h-4 rounded-full" style="width: ${winRate}%"></div>
+                            </div>
+                            <span class="font-bold text-lg">${winRate}%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2">Najdłuższa seria</h4>
+                        <p class="text-3xl font-bold text-amber-500">${userData.stats?.maxStreak || 0} dni 🔥</p>
+                    </div>
+                     <div>
+                        <h4 class="font-semibold mb-3">Najbardziej produktywne dni</h4>
+                        <div class="space-y-2">
+                        ${dayCounts.map((count, i) => `
+                            <div class="flex items-center gap-2 text-sm">
+                                <span class="w-8 font-bold text-slate-500">${daysOfWeek[i]}</span>
+                                <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-4">
+                                    <div class="stats-bar-fill bg-primary h-4 rounded-full" style="width: ${Math.round((count/maxDayCount)*100)}%"></div>
+                                </div>
+                                <span class="w-8 text-right font-semibold">${count}</span>
+                            </div>
+                        `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Templates Tab
+        function renderTemplates() {
+            const container = document.getElementById('templates-tab');
+            const templates = userData.templates || [];
+            let templatesHtml = templates.map((template, index) => `
+                <div class="flex items-center gap-2 bg-white dark:bg-slate-700 p-2 rounded-lg">
+                    <input type="text" value="${template}" data-index="${index}" class="template-input w-full bg-transparent">
+                    <button data-index="${index}" class="delete-template-btn text-red-500 p-1 hover:bg-red-100 dark:hover:bg-red-900 rounded-full">🗑️</button>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div>
+                    <h4 class="font-semibold mb-2">Twoje szablony celów</h4>
+                    <div id="templates-list" class="space-y-2 mb-4">${templatesHtml}</div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-template-input" placeholder="Nowy szablon..." class="w-full bg-white dark:bg-slate-700 p-2 rounded-lg">
+                        <button id="add-template-btn" class="bg-primary text-white px-4 rounded-lg">Dodaj</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('add-template-btn').addEventListener('click', addTemplate);
+            document.querySelectorAll('.template-input').forEach(el => el.addEventListener('blur', updateTemplate));
+            document.querySelectorAll('.delete-template-btn').forEach(el => el.addEventListener('click', deleteTemplate));
+        }
+
+        async function addTemplate() {
+            const input = document.getElementById('new-template-input');
+            const text = input.value.trim();
+            if (text) {
+                if (!userData.templates) userData.templates = [];
+                userData.templates.push(text);
+                await updateDoc(doc(db, "users", userId), { templates: userData.templates });
+                renderTemplates();
+            }
+        }
+        async function updateTemplate(e) {
+            const index = e.target.dataset.index;
+            const text = e.target.value.trim();
+            if(text) {
+                userData.templates[index] = text;
+                await updateDoc(doc(db, "users", userId), { templates: userData.templates });
+            }
+        }
+        async function deleteTemplate(e) {
+            const index = e.currentTarget.dataset.index;
+            userData.templates.splice(index, 1);
+            await updateDoc(doc(db, "users", userId), { templates: userData.templates });
+            renderTemplates();
+        }
+
+        document.getElementById('add-from-template-btn').addEventListener('click', () => {
+            const modal = document.getElementById('template-select-modal');
+            const list = document.getElementById('template-select-list');
+            list.innerHTML = '';
+            (userData.templates || []).forEach(template => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-3 bg-white dark:bg-slate-700 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600';
+                btn.textContent = template;
+                btn.onclick = async () => {
+                    const emptyGoalIndex = userData.daily.goals.findIndex(g => !g.text);
+                    if (emptyGoalIndex !== -1) {
+                        userData.daily.goals[emptyGoalIndex].text = template;
+                        await updateDoc(doc(db, "users", userId), { "daily.goals": userData.daily.goals });
+                    }
+                    closeModal(modal);
+                };
+                list.appendChild(btn);
+            });
+            openModal(modal);
+        });
+        document.getElementById('close-template-select-btn').addEventListener('click', () => closeModal(document.getElementById('template-select-modal')));
+        document.getElementById('template-select-modal').querySelector('.modal-overlay').addEventListener('click', () => closeModal(document.getElementById('template-select-modal')));
+        
+
+        // Pomodoro
+        function openPomodoroModal(e) {
+            const index = e.currentTarget.dataset.index;
+            const goalText = userData.daily.goals[index].text;
+            const modal = document.getElementById('pomodoro-modal');
+            document.getElementById('pomodoro-goal-text').textContent = goalText || "Cel bez nazwy";
+            document.getElementById('pomodoro-timer').textContent = "25:00";
+            document.getElementById('pomodoro-start-btn').onclick = () => startPomodoro(25);
+            openModal(modal);
+        }
+        document.getElementById('pomodoro-close-btn').addEventListener('click', () => {
+            clearInterval(pomodoroTimerInterval);
+            closeModal(document.getElementById('pomodoro-modal'));
+        });
+        document.getElementById('pomodoro-modal').querySelector('.modal-overlay').addEventListener('click', () => {
+            clearInterval(pomodoroTimerInterval);
+            closeModal(document.getElementById('pomodoro-modal'));
+        });
+
+        function startPomodoro(minutes) {
+            let seconds = minutes * 60;
+            const timerEl = document.getElementById('pomodoro-timer');
+            clearInterval(pomodoroTimerInterval);
+            pomodoroTimerInterval = setInterval(() => {
+                seconds--;
+                const min = Math.floor(seconds / 60);
+                const sec = seconds % 60;
+                timerEl.textContent = `${min.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+                if (seconds <= 0) {
+                    clearInterval(pomodoroTimerInterval);
+                    playSound('A5');
+                    timerEl.textContent = "Czas minął!";
+                }
+            }, 1000);
+        }
+
+        // Reflection Modal
+        document.getElementById('open-reflection-btn').addEventListener('click', () => {
+            const modal = document.getElementById('reflection-modal');
+            document.getElementById('reflection-modal-question').textContent = document.getElementById('reflection-question').textContent;
+            document.getElementById('reflection-textarea').value = '';
+            openModal(modal);
+        });
+        document.getElementById('cancel-reflection-btn').addEventListener('click', () => closeModal(document.getElementById('reflection-modal')));
+        document.getElementById('reflection-modal').querySelector('.modal-overlay').addEventListener('click', () => closeModal(document.getElementById('reflection-modal')));
+        document.getElementById('save-reflection-btn').addEventListener('click', async () => {
+            const text = document.getElementById('reflection-textarea').value.trim();
+            if (text) {
+                const todayStr = new Date().toISOString().split('T')[0];
+                if (!userData.reflections) userData.reflections = {};
+                userData.reflections[todayStr] = text;
+                await updateDoc(doc(db, "users", userId), { reflections: userData.reflections });
+                closeModal(document.getElementById('reflection-modal'));
+            }
+        });
+
+
+        // Sound
+        function playSound(note) {
+            if(window.Tone && synth) {
+                Tone.start();
+                synth.triggerAttackRelease(note, "8n");
+            }
+        }
     </script>
 </body>
 </html>
